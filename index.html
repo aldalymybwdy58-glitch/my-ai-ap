@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -37,7 +36,6 @@ header h1{
 
 header p{
   color:#777;
-  margin:8px 0 0;
 }
 
 #chat{
@@ -46,10 +44,6 @@ header p{
   overflow-y:auto;
 }
 
-
-if(q.includes("عاصمة العراق") || q.includes("عاصمه العراق") || q.includes("ما هي عاصمة العراق") || q.includes("ماهي عاصمة العراق")){
-
-  
 .message{
   max-width:88%;
   padding:12px 16px;
@@ -84,4 +78,161 @@ if(q.includes("عاصمة العراق") || q.includes("عاصمه العراق"
 textarea{
   flex:1;
   min-height:50px;
-  padding:13px
+  padding:13px;
+  border:1px solid #ccc;
+  border-radius:14px;
+  font-size:16px;
+  resize:none;
+}
+
+button{
+  border:0;
+  border-radius:14px;
+  padding:0 20px;
+  background:#2563eb;
+  color:white;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+<h1>🤖 مساعدي الذكي</h1>
+<p>اسألني أي شيء</p>
+</header>
+
+<div id="chat">
+<div class="message ai">
+مرحبًا بك 👋
+أنا مساعدي الذكي.
+اكتب سؤالك وسأحاول مساعدتك.
+</div>
+</div>
+
+<div class="input">
+<textarea id="message" placeholder="اكتب سؤالك هنا..."></textarea>
+<button id="send">إرسال</button>
+</div>
+
+</div>
+
+<script>
+
+const input = document.getElementById("message");
+const chat = document.getElementById("chat");
+const send = document.getElementById("send");
+
+function addMessage(text,type){
+
+  const message = document.createElement("div");
+
+  message.className = "message " + type;
+
+  message.textContent = text;
+
+  chat.appendChild(message);
+
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function answer(text){
+
+  const q = text
+    .toLowerCase()
+    .replace(/[؟?!.,،]/g,"")
+    .trim();
+
+  if(
+    q.includes("السلام عليكم") ||
+    q.includes("سلام عليكم")
+  ){
+    return "وعليكم السلام ورحمة الله وبركاته 🌷";
+  }
+
+  if(
+    q.includes("عاصمة العراق") ||
+    q.includes("عاصمه العراق") ||
+    q.includes("ما هي عاصمة العراق") ||
+    q.includes("ماهي عاصمة العراق")
+  ){
+    return "عاصمة العراق هي بغداد 🇮🇶";
+  }
+
+  if(
+    q.includes("من انت") ||
+    q.includes("من أنت")
+  ){
+    return "أنا مساعدي الذكي 🤖، مساعدك الإلكتروني.";
+  }
+
+  if(
+    q.includes("مرحبا") ||
+    q.includes("مرحبًا") ||
+    q.includes("اهلا") ||
+    q.includes("أهلا")
+  ){
+    return "مرحبًا بك 👋 كيف يمكنني مساعدتك؟";
+  }
+
+  if(
+    q.includes("شكرا") ||
+    q.includes("شكرًا")
+  ){
+    return "العفو 🌷 سعيد بمساعدتك.";
+  }
+
+  if(
+    q.includes("العراق")
+  ){
+    return "العراق 🇮🇶 دولة عربية، وعاصمتها بغداد.";
+  }
+
+  if(
+    q.includes("ماذا تستطيع") ||
+    q.includes("ماذا يمكنك")
+  ){
+    return "أستطيع مساعدتك في الأسئلة والمعلومات العامة، وسنطوّرني لاحقًا ليصبح أكثر ذكاءً 🤖.";
+  }
+
+  return "فهمت رسالتك 👍\n\nهذه نسخة تجريبية من مساعدي الذكي. سنضيف لها ذكاءً اصطناعيًا حقيقيًا لاحقًا حتى تستطيع التحدث معي في مواضيع كثيرة.";
+}
+
+function sendMessage(){
+
+  const text = input.value.trim();
+
+  if(!text) return;
+
+  addMessage(text,"user");
+
+  input.value = "";
+
+  setTimeout(function(){
+
+    addMessage(answer(text),"ai");
+
+  },400);
+}
+
+send.addEventListener("click",sendMessage);
+
+input.addEventListener("keydown",function(e){
+
+  if(e.key === "Enter" && !e.shiftKey){
+
+    e.preventDefault();
+
+    sendMessage();
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>
