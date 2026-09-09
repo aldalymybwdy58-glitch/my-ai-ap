@@ -3,35 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مساعدي الذكي</title>
+<title>🤖 مساعدي الذكي</title>
 <style>
-body{margin:0;font-family:Arial;background:#f5f7fb}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb}
 .app{max-width:700px;min-height:100vh;margin:auto;display:flex;flex-direction:column}
-header{background:white;padding:20px;text-align:center;border-bottom:1px solid #ddd}
-header h1{margin:0}
-header p{color:#777}
-#chat{flex:1;padding:20px}
-.message{max-width:85%;padding:12px 16px;margin:10px 0;border-radius:16px;line-height:1.7;white-space:pre-wrap}
-.user{background:#2563eb;color:white;margin-right:auto}
-.ai{background:white;border:1px solid #ddd;margin-left:auto}
-.input-area{display:flex;gap:8px;padding:12px;background:white;border-top:1px solid #ddd}
-textarea{flex:1;padding:13px;border:1px solid #ccc;border-radius:14px;font-size:16px}
-button{border:0;border-radius:14px;padding:0 20px;background:#2563eb;color:white;font-size:16px}
+header{background:#fff;padding:20px;text-align:center;border-bottom:1px solid #ddd}
+header h1{margin:0;font-size:25px}
+header p{color:#777;margin:8px 0 0}
+#chat{flex:1;padding:18px;overflow-y:auto}
+.message{max-width:88%;padding:12px 16px;margin:10px 0;border-radius:16px;line-height:1.7;white-space:pre-wrap}
+.user{background:#2563eb;color:#fff;margin-right:auto}
+.ai{background:#fff;border:1px solid #ddd;margin-left:auto}
+.input{display:flex;gap:8px;padding:12px;background:#fff;border-top:1px solid #ddd;position:sticky;bottom:0}
+textarea{flex:1;min-height:50px;padding:13px;border:1px solid #ccc;border-radius:14px;font-size:16px;resize:none}
+button{border:0;border-radius:14px;padding:0 20px;background:#2563eb;color:#fff;font-size:16px}
+.clear{margin:10px auto;padding:10px 18px;background:#ef4444}
 </style>
 </head>
+
 <body>
 <div class="app">
+
 <header>
 <h1>🤖 مساعدي الذكي</h1>
 <p>اسألني أي شيء</p>
 </header>
 
-<div id="chat"></div>
+<div id="chat">
+<div class="ai message">مرحبًا بك 👋
+أنا مساعدي الذكي. اكتب سؤالك وسأحاول مساعدتك.</div>
+</div>
 
-<div class="input-area">
+<button class="clear" onclick="clearChat()">مسح المحادثة</button>
+
+<div class="input">
 <textarea id="message" placeholder="اكتب سؤالك هنا..."></textarea>
 <button onclick="sendMessage()">إرسال</button>
 </div>
+
 </div>
 
 <script>
@@ -39,41 +49,54 @@ const chat=document.getElementById("chat");
 const input=document.getElementById("message");
 
 function addMessage(text,type){
-const message=document.createElement("div");
-message.className="message "+type;
-message.textContent=text;
-chat.appendChild(message);
-chat.scrollTop=chat.scrollHeight;
+ const m=document.createElement("div");
+ m.className="message "+type;
+ m.textContent=text;
+ chat.appendChild(m);
+ chat.scrollTop=chat.scrollHeight;
+}
+
+function answer(text){
+ const q=text.toLowerCase();
+
+ if(q.includes("السلام عليكم"))
+   return "وعليكم السلام ورحمة الله وبركاته 🌷";
+
+ if(q.includes("عاصمة العراق")||q.includes("عاصمه العراق"))
+   return "عاصمة العراق هي بغداد 🇮🇶";
+
+ if(q.includes("من أنت")||q.includes("من انت"))
+   return "أنا مساعدي الذكي 🤖، مساعدك الإلكتروني.";
+
+ if(q.includes("ماذا تستطيع")||q.includes("ماذا يمكنك"))
+   return "أستطيع مساعدتك في المعلومات العامة، الحسابات البسيطة، الطبخ، والأسئلة اليومية.";
+
+ if(q.includes("العراق"))
+   return "العراق دولة عربية تقع في غرب آسيا، وعاصمتها بغداد 🇮🇶.";
+
+ if(q.includes("الطبخ")||q.includes("طبخة")||q.includes("وصفة"))
+   return "أستطيع مساعدتك في الوصفات. اكتب اسم الطبخة التي تريدها 🍳.";
+
+ if(q.includes("شكرا")||q.includes("شكرًا"))
+   return "العفو 🌷 أنا سعيد بمساعدتك.";
+
+ if(/^[0-9+*/().\s-]+$/.test(text)){
+   try{
+     const result=Function('"use strict";return ('+text+')')();
+     if(Number.isFinite(result)) return "النتيجة = "+result;
+   }catch(e){}
+ }
+
+ return "سؤالك جميل 👍 هذه نسخة مجانية تجريبية من مساعدي الذكي. سنربطها لاحقًا بذكاء اصطناعي حقيقي لتتمكن من الإجابة عن أسئلة أكثر.";
 }
 
 function sendMessage(){
-const text=input.value.trim();
-if(!text)return;
+ const text=input.value.trim();
+ if(!text)return;
 
-addMessage(text,"user");
-input.value="";
+ addMessage(text,"user");
+ input.value="";
 
-let reply="أعتذر، لا أعرف الإجابة عن هذا السؤال حاليًا.";
-
-if(text.includes("عاصمة العراق")||text.includes("عاصمه العراق")){
-reply="عاصمة العراق هي بغداد 🇮🇶";
-}else if(text.includes("السلام عليكم")){
-reply="وعليكم السلام ورحمة الله وبركاته 🌷";
-}else if(text.includes("من أنت")||text.includes("من انت")){
-reply="أنا مساعدي الذكي 🤖، مساعدك التجريبي.";
-}else if(text.includes("ماذا يمكنك")||text.includes("ماذا تستطيع")){
-reply="أستطيع حاليًا الإجابة عن بعض الأسئلة البسيطة، وسنطوّرني لاحقًا.";
-}
-
-setTimeout(()=>addMessage(reply,"ai"),500);
-}
-
-input.addEventListener("keydown",function(event){
-if(event.key==="Enter"&&!event.shiftKey){
-event.preventDefault();
-sendMessage();
-}
-});
-</script>
-</body>
-</html>
+ setTimeout(function(){
+   addMessage(answer(text),"ai");
+ },400
