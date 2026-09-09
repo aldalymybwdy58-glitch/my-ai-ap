@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مساعدي الذكي</title>
+<style>
+body{margin:0;font-family:Arial;background:#f5f7fb}
+.app{max-width:700px;min-height:100vh;margin:auto;display:flex;flex-direction:column}
+header{background:white;padding:20px;text-align:center;border-bottom:1px solid #ddd}
+header h1{margin:0}
+header p{color:#777}
+#chat{flex:1;padding:20px}
+.message{max-width:85%;padding:12px 16px;margin:10px 0;border-radius:16px;line-height:1.7;white-space:pre-wrap}
+.user{background:#2563eb;color:white;margin-right:auto}
+.ai{background:white;border:1px solid #ddd;margin-left:auto}
+.input-area{display:flex;gap:8px;padding:12px;background:white;border-top:1px solid #ddd}
+textarea{flex:1;padding:13px;border:1px solid #ccc;border-radius:14px;font-size:16px}
+button{border:0;border-radius:14px;padding:0 20px;background:#2563eb;color:white;font-size:16px}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<h1>🤖 مساعدي الذكي</h1>
+<p>اسألني أي شيء</p>
+</header>
+
+<div id="chat"></div>
+
+<div class="input-area">
+<textarea id="message" placeholder="اكتب سؤالك هنا..."></textarea>
+<button onclick="sendMessage()">إرسال</button>
+</div>
+</div>
+
+<script>
+const chat=document.getElementById("chat");
+const input=document.getElementById("message");
+
+function addMessage(text,type){
+const message=document.createElement("div");
+message.className="message "+type;
+message.textContent=text;
+chat.appendChild(message);
+chat.scrollTop=chat.scrollHeight;
+}
+
+function sendMessage(){
+const text=input.value.trim();
+if(!text)return;
+
+addMessage(text,"user");
+input.value="";
+
+let reply="أعتذر، لا أعرف الإجابة عن هذا السؤال حاليًا.";
+
+if(text.includes("عاصمة العراق")||text.includes("عاصمه العراق")){
+reply="عاصمة العراق هي بغداد 🇮🇶";
+}else if(text.includes("السلام عليكم")){
+reply="وعليكم السلام ورحمة الله وبركاته 🌷";
+}else if(text.includes("من أنت")||text.includes("من انت")){
+reply="أنا مساعدي الذكي 🤖، مساعدك التجريبي.";
+}else if(text.includes("ماذا يمكنك")||text.includes("ماذا تستطيع")){
+reply="أستطيع حاليًا الإجابة عن بعض الأسئلة البسيطة، وسنطوّرني لاحقًا.";
+}
+
+setTimeout(()=>addMessage(reply,"ai"),500);
+}
+
+input.addEventListener("keydown",function(event){
+if(event.key==="Enter"&&!event.shiftKey){
+event.preventDefault();
+sendMessage();
+}
+});
+</script>
+</body>
+</html>
