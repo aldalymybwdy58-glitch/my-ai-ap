@@ -1,237 +1,138 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🤖 مساعدي الذكي</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تطبيق الذكاء الاصطناعي الخاص بي</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-<style>
-*{box-sizing:border-box}
+    body {
+      margin: 0;
+      background: #f5f7fb;
+      color: #222;
+    }
 
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f5f7fb;
-}
+    header {
+      background: #111827;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
 
-.app{
-  max-width:700px;
-  min-height:100vh;
-  margin:auto;
-  display:flex;
-  flex-direction:column;
-}
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
 
-header{
-  background:white;
-  padding:20px;
-  text-align:center;
-  border-bottom:1px solid #ddd;
-}
+    main {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+    }
 
-header h1{
-  margin:0;
-  font-size:26px;
-}
+    .box {
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
 
-header p{
-  color:#777;
-}
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+      resize: vertical;
+      outline: none;
+    }
 
-#chat{
-  flex:1;
-  padding:18px;
-  overflow-y:auto;
-}
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 14px;
+      border: 0;
+      border-radius: 12px;
+      background: #2563eb;
+      color: white;
+      font-size: 17px;
+      cursor: pointer;
+    }
 
-.message{
-  max-width:88%;
-  padding:12px 16px;
-  margin:10px 0;
-  border-radius:16px;
-  line-height:1.7;
-  white-space:pre-wrap;
-}
+    button:hover {
+      background: #1d4ed8;
+    }
 
-.user{
-  background:#2563eb;
-  color:white;
-  margin-right:auto;
-}
-
-.ai{
-  background:white;
-  border:1px solid #ddd;
-  margin-left:auto;
-}
-
-.input{
-  display:flex;
-  gap:8px;
-  padding:12px;
-  background:white;
-  border-top:1px solid #ddd;
-  position:sticky;
-  bottom:0;
-}
-
-textarea{
-  flex:1;
-  min-height:50px;
-  padding:13px;
-  border:1px solid #ccc;
-  border-radius:14px;
-  font-size:16px;
-  resize:none;
-}
-
-button{
-  border:0;
-  border-radius:14px;
-  padding:0 20px;
-  background:#2563eb;
-  color:white;
-  font-size:16px;
-}
-</style>
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f3f4f6;
+      border-radius: 12px;
+      min-height: 60px;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="app">
-
 <header>
-<h1>🤖 مساعدي الذكي</h1>
-<p>اسألني أي شيء</p>
+  <h1>🤖 تطبيق الذكاء الاصطناعي الخاص بي</h1>
 </header>
 
-<div id="chat">
-<div class="message ai">
-مرحبًا بك 👋
-أنا مساعدي الذكي.
-اكتب سؤالك وسأحاول مساعدتك.
-</div>
-</div>
+<main>
+  <div class="box">
+    <h2>مرحبًا بك 👋</h2>
+    <p>اكتب سؤالك في الأسفل:</p>
 
-<div class="input">
-<textarea id="message" placeholder="اكتب سؤالك هنا..."></textarea>
-<button id="send">إرسال</button>
-</div>
+    <textarea id="question" placeholder="اكتب سؤالك هنا..."></textarea>
 
-</div>
+    <button onclick="sendQuestion()">إرسال</button>
+
+    <div id="result">ستظهر الإجابة هنا...</div>
+  </div>
+</main>
 
 <script>
+async function sendQuestion() {
+  const question = document.getElementById("question").value.trim();
+  const result = document.getElementById("result");
 
-const input = document.getElementById("message");
-const chat = document.getElementById("chat");
-const send = document.getElementById("send");
+  if (!question) {
+    result.textContent = "اكتب سؤالًا أولًا.";
+    return;
+  }
 
-function addMessage(text,type){
+  result.textContent = "جارٍ التفكير...";
 
-  const message = document.createElement("div");
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: question
+      })
+    });
 
-  message.className = "message " + type;
+    const data = await response.json();
 
-  message.textContent = text;
+    if (data.reply) {
+      result.textContent = data.reply;
+    } else {
+      result.textContent = "لم تصل إجابة من الخادم.";
+    }
 
-  chat.appendChild(message);
-
-  chat.scrollTop = chat.scrollHeight;
+  } catch (error) {
+    result.textContent = "حدث خطأ في الاتصال بالخادم.";
+  }
 }
-
-function answer(text){
-
-  const q = text
-    .toLowerCase()
-    .replace(/[؟?!.,،]/g,"")
-    .trim();
-
-  if(
-    q.includes("السلام عليكم") ||
-    q.includes("سلام عليكم")
-  ){
-    return "وعليكم السلام ورحمة الله وبركاته 🌷";
-  }
-
-  if(
-    q.includes("عاصمة العراق") ||
-    q.includes("عاصمه العراق") ||
-    q.includes("ما هي عاصمة العراق") ||
-    q.includes("ماهي عاصمة العراق")
-  ){
-    return "عاصمة العراق هي بغداد 🇮🇶";
-  }
-
-  if(
-    q.includes("من انت") ||
-    q.includes("من أنت")
-  ){
-    return "أنا مساعدي الذكي 🤖، مساعدك الإلكتروني.";
-  }
-
-  if(
-    q.includes("مرحبا") ||
-    q.includes("مرحبًا") ||
-    q.includes("اهلا") ||
-    q.includes("أهلا")
-  ){
-    return "مرحبًا بك 👋 كيف يمكنني مساعدتك؟";
-  }
-
-  if(
-    q.includes("شكرا") ||
-    q.includes("شكرًا")
-  ){
-    return "العفو 🌷 سعيد بمساعدتك.";
-  }
-
-  if(
-    q.includes("العراق")
-  ){
-    return "العراق 🇮🇶 دولة عربية، وعاصمتها بغداد.";
-  }
-
-  if(
-    q.includes("ماذا تستطيع") ||
-    q.includes("ماذا يمكنك")
-  ){
-    return "أستطيع مساعدتك في الأسئلة والمعلومات العامة، وسنطوّرني لاحقًا ليصبح أكثر ذكاءً 🤖.";
-  }
-
-  return "فهمت رسالتك 👍\n\nهذه نسخة تجريبية من مساعدي الذكي. سنضيف لها ذكاءً اصطناعيًا حقيقيًا لاحقًا حتى تستطيع التحدث معي في مواضيع كثيرة.";
-}
-
-function sendMessage(){
-
-  const text = input.value.trim();
-
-  if(!text) return;
-
-  addMessage(text,"user");
-
-  input.value = "";
-
-  setTimeout(function(){
-
-    addMessage(answer(text),"ai");
-
-  },400);
-}
-
-send.addEventListener("click",sendMessage);
-
-input.addEventListener("keydown",function(e){
-
-  if(e.key === "Enter" && !e.shiftKey){
-
-    e.preventDefault();
-
-    sendMessage();
-
-  }
-
-});
-
 </script>
 
 </body>
