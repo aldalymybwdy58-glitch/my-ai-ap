@@ -5,20 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🤖 مساعدي الذكي</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb}
-.app{max-width:700px;min-height:100vh;margin:auto;display:flex;flex-direction:column}
-header{background:#fff;padding:20px;text-align:center;border-bottom:1px solid #ddd}
-header h1{margin:0;font-size:25px}
-header p{color:#777;margin:8px 0 0}
-#chat{flex:1;padding:18px;overflow-y:auto}
-.message{max-width:88%;padding:12px 16px;margin:10px 0;border-radius:16px;line-height:1.7;white-space:pre-wrap}
-.user{background:#2563eb;color:#fff;margin-right:auto}
-.ai{background:#fff;border:1px solid #ddd;margin-left:auto}
-.input{display:flex;gap:8px;padding:12px;background:#fff;border-top:1px solid #ddd;position:sticky;bottom:0}
-textarea{flex:1;min-height:50px;padding:13px;border:1px solid #ccc;border-radius:14px;font-size:16px;resize:none}
-button{border:0;border-radius:14px;padding:0 20px;background:#2563eb;color:#fff;font-size:16px}
-.clear{margin:10px auto;padding:10px 18px;background:#ef4444}
+body{margin:0;font-family:Arial;background:#f5f7fb}
+.app{max-width:700px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
+header{text-align:center;background:white;padding:20px}
+#chat{flex:1;padding:15px}
+.message{padding:12px;margin:10px 0;border-radius:15px;white-space:pre-wrap}
+.ai{background:white}
+.user{background:#2563eb;color:white}
+.input{display:flex;gap:8px;padding:12px;background:white}
+textarea{flex:1;padding:12px;font-size:16px;border-radius:12px;border:1px solid #ccc}
+button{padding:12px 18px;border:0;border-radius:12px;background:#2563eb;color:white}
 </style>
 </head>
 
@@ -31,72 +27,58 @@ button{border:0;border-radius:14px;padding:0 20px;background:#2563eb;color:#fff;
 </header>
 
 <div id="chat">
-<div class="ai message">مرحبًا بك 👋
-أنا مساعدي الذكي. اكتب سؤالك وسأحاول مساعدتك.</div>
+<div class="message ai">مرحبًا 👋 اكتب رسالتك وسأجيبك.</div>
 </div>
 
-<button class="clear" onclick="clearChat()">مسح المحادثة</button>
-
 <div class="input">
-<textarea id="message" placeholder="اكتب سؤالك هنا..."></textarea>
-<button onclick="sendMessage()">إرسال</button>
+<textarea id="message" placeholder="اكتب هنا..."></textarea>
+<button id="send">إرسال</button>
 </div>
 
 </div>
 
 <script>
-const chat=document.getElementById("chat");
 const input=document.getElementById("message");
+const chat=document.getElementById("chat");
+const send=document.getElementById("send");
 
 function addMessage(text,type){
- const m=document.createElement("div");
- m.className="message "+type;
- m.textContent=text;
- chat.appendChild(m);
- chat.scrollTop=chat.scrollHeight;
-}
-
-function answer(text){
- const q=text.toLowerCase();
-
- if(q.includes("السلام عليكم"))
-   return "وعليكم السلام ورحمة الله وبركاته 🌷";
-
- if(q.includes("عاصمة العراق")||q.includes("عاصمه العراق"))
-   return "عاصمة العراق هي بغداد 🇮🇶";
-
- if(q.includes("من أنت")||q.includes("من انت"))
-   return "أنا مساعدي الذكي 🤖، مساعدك الإلكتروني.";
-
- if(q.includes("ماذا تستطيع")||q.includes("ماذا يمكنك"))
-   return "أستطيع مساعدتك في المعلومات العامة، الحسابات البسيطة، الطبخ، والأسئلة اليومية.";
-
- if(q.includes("العراق"))
-   return "العراق دولة عربية تقع في غرب آسيا، وعاصمتها بغداد 🇮🇶.";
-
- if(q.includes("الطبخ")||q.includes("طبخة")||q.includes("وصفة"))
-   return "أستطيع مساعدتك في الوصفات. اكتب اسم الطبخة التي تريدها 🍳.";
-
- if(q.includes("شكرا")||q.includes("شكرًا"))
-   return "العفو 🌷 أنا سعيد بمساعدتك.";
-
- if(/^[0-9+*/().\s-]+$/.test(text)){
-   try{
-     const result=Function('"use strict";return ('+text+')')();
-     if(Number.isFinite(result)) return "النتيجة = "+result;
-   }catch(e){}
- }
-
- return "سؤالك جميل 👍 هذه نسخة مجانية تجريبية من مساعدي الذكي. سنربطها لاحقًا بذكاء اصطناعي حقيقي لتتمكن من الإجابة عن أسئلة أكثر.";
+  const div=document.createElement("div");
+  div.className="message "+type;
+  div.textContent=text;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
 }
 
 function sendMessage(){
- const text=input.value.trim();
- if(!text)return;
+  const text=input.value.trim();
+  if(!text)return;
 
- addMessage(text,"user");
- input.value="";
+  addMessage(text,"user");
+  input.value="";
 
- setTimeout(function(){
-   addMessage(answer(text),"ai");
- },400
+  setTimeout(function(){
+    let reply="وصلتني رسالتك 👍 وسأساعدك قدر الإمكان.";
+
+    if(text.includes("السلام عليكم"))
+      reply="وعليكم السلام ورحمة الله وبركاته 🌷";
+
+    if(text.includes("من انت") || text.includes("من أنت"))
+      reply="أنا مساعدي الذكي 🤖.";
+
+    addMessage(reply,"ai");
+  },300);
+}
+
+send.addEventListener("click",sendMessage);
+
+input.addEventListener("keydown",function(e){
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+</script>
+
+</body>
+</html>
