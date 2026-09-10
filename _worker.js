@@ -2,7 +2,6 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // طلب الذكاء الاصطناعي
     if (url.pathname === "/api/chat" && request.method === "POST") {
       try {
         const body = await request.json();
@@ -12,6 +11,13 @@ export default {
           return Response.json(
             { reply: "اكتب سؤالك أولًا." },
             { status: 400 }
+          );
+        }
+
+        if (!env.OPENAI_API_KEY) {
+          return Response.json(
+            { reply: "خطأ: مفتاح OPENAI_API_KEY غير موجود في Cloudflare." },
+            { status: 500 }
           );
         }
 
@@ -38,8 +44,11 @@ export default {
         const data = await response.json();
 
         if (!response.ok) {
+          const errorMessage =
+            data?.error?.message || `HTTP ${response.status}`;
+
           return Response.json(
-            { reply: "حدث خطأ في خدمة الذكاء الاصطناعي." },
+            { reply: `خطأ OpenAI: ${errorMessage}` },
             { status: 500 }
           );
         }
@@ -58,7 +67,6 @@ export default {
       }
     }
 
-    // عرض واجهة التطبيق
     return env.ASSETS.fetch(request);
   }
 };
