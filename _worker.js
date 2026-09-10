@@ -1,103 +1,57 @@
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
+async function sendMessage(){
 
-    // السماح لـ GitHub Pages بالاتصال
-    const corsHeaders = {
-      "Access-Control-Allow-Origin": "https://aldalymybwdy58-glitch.github.io",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
-    };
+  const input = document.getElementById("input");
+  const text = input.value.trim();
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: corsHeaders
-      });
-    }
+  if(!text) return;
 
-    if (url.pathname === "/api/chat" && request.method === "POST") {
-      try {
-        const body = await request.json();
-        const message = body.message;
+  addMessage(text, "user");
 
-        if (!message) {
-          return Response.json(
-            { reply: "اكتب سؤالك أولًا." },
-            {
-              status: 400,
-              headers: corsHeaders
-            }
-          );
-        }
+  currentMessages.push({
+    role: "user",
+    content: text
+  });
 
-        if (!env.OPENAI_API_KEY) {
-          return Response.json(
-            { reply: "مفتاح OpenAI غير موجود في Cloudflare." },
-            {
-              status: 500,
-              headers: corsHeaders
-            }
-          );
-        }
+  input.value = "";
+  input.style.height = "44px";
 
-        const response = await fetch(
-          "https://api.openai.com/v1/chat/completions",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-              model: "gpt-4o-mini",
-              messages: [
-                {
-                  role: "user",
-                  content: message
-                }
-              ]
-            })
-          }
-        );
+  const loadingId = "loading-" + Date.now();
 
-        const data = await response.json();
+  addMessage("جاري التفكير...", "assistant");
 
-        if (!response.ok) {
-          return Response.json(
-            {
-              reply:
-                data?.error?.message ||
-                `خطأ OpenAI: HTTP ${response.status}`
-            },
-            {
-              status: 500,
-              headers: corsHeaders
-            }
-          );
-        }
+  try {
 
-        const reply =
-          data.choices?.[0]?.message?.content ||
-          "لم تصل إجابة.";
-
-        return Response.json(
-          { reply },
-          {
-            headers: corsHeaders
-          }
-        );
-
-      } catch (error) {
-        return Response.json(
-          { reply: "حدث خطأ في الخادم." },
-          {
-            status: 500,
-            headers: corsHeaders
-          }
-        );
+    const response = await fetch(
+      "https://YOUR-WORKER.workers.dev/api/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: text
+        })
       }
+    );
+
+    const data = await response.json();
+
+    const messages = document.getElementById("messages");
+    const lastMessage = messages.lastElementChild;
+
+    if(lastMessage){
+      lastMessage.querySelector(".text").textContent =
+        data.reply || "لم تصل إجابة.";
     }
 
-    return env.ASSETS.fetch(request);
+  } catch(error) {
+
+    const messages = document.getElementById("messages");
+    const lastMessage = messages.lastElementChild;
+
+    if(lastMessage){
+      lastMessage.querySelector(".text").textContent =
+        "حدث خطأ في الاتصال بالخادم.";
+    }
   }
-};
+}
