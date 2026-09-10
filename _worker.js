@@ -2,6 +2,19 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // السماح لـ GitHub Pages بالاتصال
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "https://aldalymybwdy58-glitch.github.io",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    };
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: corsHeaders
+      });
+    }
+
     if (url.pathname === "/api/chat" && request.method === "POST") {
       try {
         const body = await request.json();
@@ -10,14 +23,20 @@ export default {
         if (!message) {
           return Response.json(
             { reply: "اكتب سؤالك أولًا." },
-            { status: 400 }
+            {
+              status: 400,
+              headers: corsHeaders
+            }
           );
         }
 
         if (!env.OPENAI_API_KEY) {
           return Response.json(
-            { reply: "خطأ: مفتاح OPENAI_API_KEY غير موجود في Cloudflare." },
-            { status: 500 }
+            { reply: "مفتاح OpenAI غير موجود في Cloudflare." },
+            {
+              status: 500,
+              headers: corsHeaders
+            }
           );
         }
 
@@ -44,12 +63,16 @@ export default {
         const data = await response.json();
 
         if (!response.ok) {
-          const errorMessage =
-            data?.error?.message || `HTTP ${response.status}`;
-
           return Response.json(
-            { reply: `خطأ OpenAI: ${errorMessage}` },
-            { status: 500 }
+            {
+              reply:
+                data?.error?.message ||
+                `خطأ OpenAI: HTTP ${response.status}`
+            },
+            {
+              status: 500,
+              headers: corsHeaders
+            }
           );
         }
 
@@ -57,12 +80,20 @@ export default {
           data.choices?.[0]?.message?.content ||
           "لم تصل إجابة.";
 
-        return Response.json({ reply });
+        return Response.json(
+          { reply },
+          {
+            headers: corsHeaders
+          }
+        );
 
       } catch (error) {
         return Response.json(
           { reply: "حدث خطأ في الخادم." },
-          { status: 500 }
+          {
+            status: 500,
+            headers: corsHeaders
+          }
         );
       }
     }
