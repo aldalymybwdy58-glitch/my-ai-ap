@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#212121">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ChatGPT AI</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  font-family:Arial,"Noto Sans Arabic",sans-serif;
+  background:#212121;
+  color:#fff;
+}
+
+body{
+  overflow:hidden;
+}
+
+button,input,textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* ================= LOGO ================= */
+
+.logo{
+  width:78px;
+  height:78px;
+  border-radius:24px;
+  background:linear-gradient(145deg,#ffffff,#dcdcdc);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.45),
+    inset 0 1px 1px rgba(255,255,255,.9);
+}
+
+.logo::before{
+  content:"";
+  width:38px;
+  height:38px;
+  border:5px solid #111;
+  border-radius:50%;
+  position:absolute;
+}
+
+.logo::after{
+  content:"✦";
+  color:#111;
+  font-size:27px;
+  font-weight:bold;
+  position:absolute;
+}
+
+/* ================= LOGIN ================= */
+
+.login-screen{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 20%,#343434 0,#212121 42%,#151515 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:9999;
+}
+
+.login-box{
+  width:100%;
+  max-width:390px;
+  text-align:center;
+}
+
+.login-box .logo{
+  margin:0 auto 22px;
+}
+
+.login-box h1{
+  margin:0 0 8px;
+  font-size:27px;
+  letter-spacing:-.5px;
+}
+
+.login-box p{
+  color:#aaa;
+  margin:0 0 25px;
+}
+
+.login-card{
+  background:rgba(43,43,43,.94);
+  border:1px solid #444;
+  border-radius:22px;
+  padding:20px;
+  text-align:right;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  backdrop-filter:blur(15px);
+}
+
+.login-card label{
+  display:block;
+  font-size:13px;
+  color:#bbb;
+  margin:12px 0 7px;
+}
+
+.login-card input{
+  width:100%;
+  height:48px;
+  border:1px solid #4b4b4b;
+  border-radius:13px;
+  outline:none;
+  background:#212121;
+  color:#fff;
+  padding:0 13px;
+  transition:.2s;
+}
+
+.login-card input:focus{
+  border-color:#888;
+  box-shadow:0 0 0 3px rgba(255,255,255,.05);
+}
+
+.login-btn{
+  width:100%;
+  height:48px;
+  margin-top:18px;
+  border:0;
+  border-radius:13px;
+  background:#fff;
+  color:#111;
+  font-weight:bold;
+  transition:.2s;
+}
+
+.login-btn:hover{
+  background:#ddd;
+  transform:translateY(-1px);
+}
+
+.login-note{
+  font-size:11px;
+  color:#777;
+  text-align:center;
+  margin-top:15px;
+}
+
+/* ================= APP ================= */
+
+.app{
+  height:100vh;
+  height:100dvh;
+  display:flex;
+  background:#212121;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+  width:290px;
+  height:100%;
+  background:#171717;
+  display:flex;
+  flex-direction:column;
+  padding:10px;
+  transition:.25s;
+  z-index:100;
+  border-left:1px solid #303030;
+}
+
+.sidebar-head{
+  display:flex;
+  gap:7px;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.icon-btn{
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:#eee;
+  font-size:20px;
+  transition:.15s;
+}
+
+.icon-btn:hover{
+  background:#2b2b2b;
+}
+
+.icon-btn:active{
+  transform:scale(.94);
+}
+
+.brand{
+  font-weight:700;
+  font-size:16px;
+  flex:1;
+  padding-right:5px;
+}
+
+.new-chat{
+  width:100%;
+  height:46px;
+  border:1px solid #3b3b3b;
+  border-radius:13px;
+  background:#212121;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 13px;
+  transition:.15s;
+}
+
+.new-chat:hover{
+  background:#2b2b2b;
+}
+
+.sidebar-scroll{
+  flex:1;
+  overflow:auto;
+  padding-top:12px;
+}
+
+.side-section-title{
+  font-size:12px;
+  color:#999;
+  padding:12px 10px 6px;
+}
+
+.side-row{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#eee;
+  padding:11px 10px;
+  border-radius:11px;
+  text-align:right;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  font-size:14px;
+  transition:.15s;
+}
+
+.side-row:hover{
+  background:#2b2b2b;
+}
+
+.side-row .ico{
+  width:23px;
+  text-align:center;
+  font-size:17px;
+}
+
+.history-item{
+  padding:10px;
+  border-radius:10px;
+  color:#ddd;
+  font-size:13px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.history-item:hover{
+  background:#292929;
+}
+
+.sidebar-bottom{
+  border-top:1px solid #303030;
+  padding-top:7px;
+}
+
+.profile{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px;
+  border-radius:11px;
+}
+
+.profile:hover{
+  background:#292929;
+}
+
+.avatar-user{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#198754,#0c4d32);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.profile-text{
+  font-size:13px;
+  flex:1;
+}
+
+.plan{
+  font-size:11px;
+  color:#999;
+  margin-top:2px;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+  flex:1;
+  min-width:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+.topbar{
+  height:58px;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:0 12px;
+  position:relative;
+  z-index:10;
+  border-bottom:1px solid rgba(255,255,255,.03);
+}
+
+.top-title{
+  font-weight:600;
+  font-size:15px;
+  flex:1;
+  text-align:center;
+}
+
+.top-actions{
+  display:flex;
+  gap:3px;
+}
+
+/* ================= CHAT ================= */
+
+.chat{
+  flex:1;
+  overflow:auto;
+  padding:15px 14px 145px;
+  scroll-behavior:smooth;
+}
+
+.chat-inner{
+  max-width:850px;
+  margin:auto;
+}
+
+.empty{
+  min-height:58vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#ddd;
+  font-size:21px;
+  text-align:center;
+  font-weight:500;
+}
+
+.message{
+  display:flex;
+  gap:12px;
+  margin:24px 0;
+  line-height:1.8;
+  font-size:15px;
+  animation:messageIn .2s ease;
+}
+
+@keyframes messageIn{
+  from{
+    opacity:0;
+    transform:translateY(7px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.message .avatar{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+}
+
+.user .avatar{
+  background:#4b4b4b;
+}
+
+.assistant .avatar{
+  background:#fff;
+  color:#111;
+}
+
+.text{
+  flex:1;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.message-actions{
+  display:flex;
+  gap:2px;
+  margin-top:5px;
+}
+
+.message-actions button{
+  background:transparent;
+  color:#999;
+  border:0;
+  border-radius:7px;
+  padding:5px 7px;
+}
+
+.message-actions button:hover{
+  background:#303030;
+  color:#fff;
+}
+
+/* ================= COMPOSER ================= */
+
+.bottom{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:28px 14px 16px;
+  background:linear-gradient(transparent,#212121 32%);
+  z-index:20;
+}
+
+.composer-wrap{
+  max-width:850px;
+  margin:auto;
+}
+
+.composer{
+  border:1px solid #454545;
+  border-radius:27px;
+  background:#2f2f2f;
+  box-shadow:0 5px 20px rgba(0,0,0,.25);
+  padding:7px;
+  display:flex;
+  align-items:flex-end;
+  gap:3px;
+}
+
+textarea{
+  flex:1;
+  border:0;
+  outline:0;
+  resize:none;
+  color:#fff;
+  background:transparent;
+  padding:9px 8px;
+  min-height:43px;
+  max-height:140px;
+  line-height:1.5;
+}
+
+textarea::placeholder{
+  color:#aaa;
+}
+
+.action{
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  color:#ddd;
+  font-size:20px;
+  transition:.15s;
+}
+
+.action:hover{
+  background:#454545;
+}
+
+.action:active{
+  transform:scale(.92);
+}
+
+.send{
+  background:#fff;
+  color:#111;
+}
+
+.send:hover{
+  background:#ddd;
+}
+
+.voice-active{
+  background:#1d8f61!important;
+  color:#fff!important;
+}
+
+.composer-tools{
+  display:flex;
+  justify-content:space-between;
+  padding:7px 8px 0;
+  color:#777;
+  font-size:10px;
+}
+
+/* ================= POPUPS ================= */
+
+.popup{
+  position:fixed;
+  background:#2b2b2b;
+  border:1px solid #454545;
+  border-radius:15px;
+  box-shadow:0 12px 35px rgba(0,0,0,.4);
+  padding:7px;
+  display:none;
+  z-index:200;
+}
+
+.popup.show{
+  display:block;
+}
+
+.add-menu{
+  bottom:92px;
+  right:calc(50% - 425px);
+  width:270px;
+}
+
+.menu-item{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#fff;
+  padding:11px;
+  border-radius:10px;
+  text-align:right;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.menu-item:hover{
+  background:#3a3a3a;
+}
+
+/* ================= PANELS ================= */
+
+.panel{
+  position:absolute;
+  inset:58px 0 0;
+  background:#212121;
+  overflow:auto;
+  display:none;
+  z-index:50;
+}
+
+.panel.active{
+  display:block;
+}
+
+.panel-inner{
+  max-width:900px;
+  margin:auto;
+  padding:25px 18px 100px;
+}
+
+.back{
+  border:0;
+  background:#303030;
+  color:#fff;
+  padding:9px 14px;
+  border-radius:10px;
+}
+
+.back:hover{
+  background:#3a3a3a;
+}
+
+.panel h1{
+  font-size:27px;
+  margin:25px 0 18px;
+}
+
+.card{
+  border:1px solid #3d3d3d;
+  border-radius:17px;
+  padding:18px;
+  margin:12px 0;
+  background:#292929;
+}
+
+.card textarea{
+  width:100%;
+  height:120px;
+  border:1px solid #484848;
+  border-radius:12px;
+  background:#212121;
+}
+
+.primary{
+  border:0;
+  border-radius:11px;
+  padding:11px 16px;
+  background:#fff;
+  color:#111;
+}
+
+.primary:hover{
+  background:#ddd;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.feature{
+  min-height:120px;
+}
+
+.feature h3{
+  margin-top:0;
+}
+
+.badge{
+  display:inline-block;
+  font-size:11px;
+  padding:5px 9px;
+  border-radius:20px;
+  background:#3a3a3a;
+  color:#bbb;
+}
+
+.preview{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.preview img{
+  width:110px;
+  height:110px;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+/* ================= IMAGE RESULT ================= */
+
+.image-demo{
+  margin-top:15px;
+}
+
+.image-box{
+  width:100%;
+  height:220px;
+  border-radius:15px;
+  background:
+    radial-gradient(circle at 30% 30%,#4a4a4a,#303030 40%,#171717 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:55px;
+  border:1px solid #444;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:700px){
+
+  .sidebar{
+    position:fixed;
+    right:-300px;
+    top:0;
+    bottom:0;
+    box-shadow:-10px 0 30px rgba(0,0,0,.5);
+  }
+
+  .sidebar.open{
+    right:0;
+  }
+
+  .top-title{
+    font-size:14px;
+  }
+
+  .bottom{
+    padding:25px 8px 10px;
+  }
+
+  .chat{
+    padding-left:8px;
+    padding-right:8px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .add-menu{
+    right:8px;
+    left:8px;
+    width:auto;
+  }
+
+  .panel-inner{
+    padding:20px 12px 90px;
+  }
+
+  .composer{
+    border-radius:23px;
+  }
+
+  .composer-tools{
+    padding-left:5px;
+    padding-right:5px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= LOGIN ================= -->
+
+<div class="login-screen" id="loginScreen">
+
+  <div class="login-box">
+
+    <div class="logo" aria-label="شعار التطبيق"></div>
+
+    <h1>مساعد الذكاء الاصطناعي</h1>
+
+    <p>سجّل الدخول للمتابعة</p>
+
+    <div class="login-card">
+
+      <label>البريد الإلكتروني</label>
+
+      <input
+        id="emailInput"
+        type="email"
+        placeholder="example@email.com"
+        autocomplete="email">
+
+      <label>كلمة المرور</label>
+
+      <input
+        id="passwordInput"
+        type="password"
+        placeholder="كلمة المرور"
+        autocomplete="current-password">
+
+      <button class="login-btn" onclick="login()">
+        تسجيل الدخول
+      </button>
+
+      <div class="login-note">
+        هذا تسجيل دخول تجريبي للواجهة
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ================= APP ================= -->
+
+<div class="app hidden" id="app">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-head">
+
+      <button
+        class="icon-btn"
+        onclick="toggleSidebar()">
+        ☰
+      </button>
+
+      <div class="brand">
+        مساعد الذكاء الاصطناعي
+      </div>
+
+    </div>
+
+    <button
+      class="new-chat"
+      onclick="newChat()">
+
+      <span>＋</span>
+      <span>محادثة جديدة</span>
+
+    </button>
+
+    <div class="sidebar-scroll">
+
+      <div class="side-section-title">
+        القائمة
+      </div>
+
+      <button
+        class="side-row"
+        onclick="showPanel('images')">
+
+        <span class="ico">🎨</span>
+        تصميم الصور
+
+      </button>
+
+      <button
+        class="side-row"
+        onclick="showPanel('settings')">
+
+        <span class="ico">⚙️</span>
+        الإعدادات
+
+      </button>
+
+      <button
+        class="side-row"
+        onclick="showPanel('subscription')">
+
+        <span class="ico">💳</span>
+        الاشتراك
+
+      </button>
+
+      <div class="side-section-title">
+        المحادثات
+      </div>
+
+      <div id="history">
+
+        <div class="history-item">
+          لا توجد محادثات بعد
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="sidebar-bottom">
+
+      <div class="profile">
+
+        <div class="avatar-user">
+          AI
+        </div>
+
+        <div class="profile-text">
+
+          المستخدم
+
+          <div class="plan">
+            الخطة المجانية
+          </div>
+
+        </div>
+
+        <button
+          class="icon-btn"
+          onclick="logout()">
+          ↪
+        </button>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- ================= MAIN ================= -->
+
+  <main class="main">
+
+    <div class="topbar">
+
+      <button
+        class="icon-btn"
+        onclick="toggleSidebar()">
+        ☰
+      </button>
+
+      <div class="top-title">
+        ChatGPT AI
+      </div>
+
+      <div class="top-actions">
+
+        <button
+          class="icon-btn"
+          onclick="newChat()">
+          ＋
+        </button>
+
+        <button
+          class="icon-btn"
+          onclick="showPanel('settings')">
+          ⚙
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- CHAT -->
+
+    <section class="chat" id="chat">
+
+      <div class="chat-inner" id="chatInner">
+
+        <div
+          class="empty"
+          id="emptyMessage">
+
+          كيف يمكنني مساعدتك؟
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= BOTTOM ================= -->
+
+    <div class="bottom">
+
+      <div class="composer-wrap">
+
+        <div class="composer">
+
+          <button
+            class="action"
+            title="إرفاق"
+            onclick="document.getElementById('fileInput').click()">
+            📎
+          </button>
+
+          <textarea
+            id="messageInput"
+            placeholder="اكتب رسالتك..."
+            rows="1"
+            onkeydown="handleKey(event)"></textarea>
+
+          <button
+            class="action"
+            id="voiceBtn"
+            title="التحدث بالصوت"
+            onclick="startVoice()">
+            🎙️
+          </button>
+
+          <button
+            class="action send"
+            title="إرسال"
+            onclick="sendMessage()">
+            ↑
+          </button>
+
+        </div>
+
+        <div class="composer-tools">
+
+          <span class="tool-hint">
+            الذكاء الاصطناعي
+          </span>
+
+          <span class="tool-hint">
+            Enter للإرسال
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- FILE INPUT -->
+
+    <input
+      id="fileInput"
+      type="file"
+      accept="image/*,.pdf,.txt,.doc,.docx"
+      hidden
+      onchange="fileSelected(event)">
+
+
+    <!-- ================= SETTINGS ================= -->
+
+    <div
+      class="panel"
+      id="settingsPanel">
+
+      <div class="panel-inner">
+
+        <button
+          class="back"
+          onclick="closePanels()">
+          ← رجوع
+        </button>
+
+        <h1>
+          الإعدادات
+        </h1>
+
+        <div class="card">
+
+          <h3>الحساب</h3>
+
+          <p>المستخدم</p>
+
+          <span class="badge">
+            الخطة المجانية
+          </span>
+
+        </div>
+
+        <div class="card">
+
+          <h3>اللغة</h3>
+
+          <p>العربية</p>
+
+        </div>
+
+        <div class="card">
+
+          <h3>المظهر</h3>
+
+          <p>الوضع الداكن</p>
+
+        </div>
+
+        <div class="card">
+
+          <button
+            class="primary"
+            onclick="logout()">
+
+            تسجيل الخروج
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================= IMAGE PANEL ================= -->
+
+    <div
+      class="panel"
+      id="imagesPanel">
+
+      <div class="panel-inner">
+
+        <button
+          class="back"
+          onclick="closePanels()">
+
+          ← رجوع
+
+        </button>
+
+        <h1>
+          🎨 تصميم الصور
+        </h1>
+
+        <div class="card">
+
+          <h3>
+            أنشئ صورة بالذكاء الاصطناعي
+          </h3>
+
+          <textarea
+            id="imagePrompt"
+            placeholder="اكتب وصف الصورة التي تريدها..."></textarea>
+
+          <br><br>
+
+          <button
+            class="primary"
+            onclick="createImageDemo()">
+
+            إنشاء صورة
+
+          </button>
+
+          <div id="imageResult"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================= SUBSCRIPTION ================= -->
+
+    <div
+      class="panel"
+      id="subscriptionPanel">
+
+      <div class="panel-inner">
+
+        <button
+          class="back"
+          onclick="closePanels()">
+
+          ← رجوع
+
+        </button>
+
+        <h1>
+          💳 الاشتراك
+        </h1>
+
+        <div class="grid">
+
+          <div class="card feature">
+
+            <h3>
+              مجاني
+            </h3>
+
+            <p>
+              محادثات أساسية
+            </p>
+
+            <p>
+              إرفاق الملفات
+            </p>
+
+            <span class="badge">
+              الحالي
+            </span>
+
+          </div>
+
+          <div class="card feature">
+
+            <h3>
+              Premium
+            </h3>
+
+            <p>
+              مزايا إضافية
+            </p>
+
+            <p>
+              تصميم صور متقدم
+            </p>
+
+            <button
+              class="primary"
+              onclick="alert('سيتم ربط الدفع لاحقًا')">
+
+              الاشتراك
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<script>
+
+/* ================= LOGIN ================= */
+
+function login(){
+
+  const email =
+    document.getElementById("emailInput")
+      .value.trim();
+
+  const password =
+    document.getElementById("passwordInput")
+      .value.trim();
+
+  if(!email || !password){
+
+    alert(
+      "يرجى إدخال البريد الإلكتروني وكلمة المرور"
+    );
+
+    return;
+  }
+
+  localStorage.setItem(
+    "ai_logged_in",
+    "1"
+  );
+
+  document
+    .getElementById("loginScreen")
+    .classList.add("hidden");
+
+  document
+    .getElementById("app")
+    .classList.remove("hidden");
+}
+
+
+function logout(){
+
+  localStorage.removeItem(
+    "ai_logged_in"
+  );
+
+  document
+    .getElementById("app")
+    .classList.add("hidden");
+
+  document
+    .getElementById("loginScreen")
+    .classList.remove("hidden");
+}
+
+
+/* ================= START ================= */
+
+window.addEventListener(
+  "load",
+  function(){
+
+    if(
+      localStorage.getItem(
+        "ai_logged_in"
+      ) === "1"
+    ){
+
+      document
+        .getElementById("loginScreen")
+        .classList.add("hidden");
+
+      document
+        .getElementById("app")
+        .classList.remove("hidden");
+
+    }
+
+  }
+);
+
+
+/* ================= SIDEBAR ================= */
+
+function toggleSidebar(){
+
+  document
+    .getElementById("sidebar")
+    .classList.toggle("open");
+
+}
+
+
+/* ================= NEW CHAT ================= */
+
+function newChat(){
+
+  document
+    .getElementById("chatInner")
+    .innerHTML = `
+      <div
+        class="empty"
+        id="emptyMessage">
+        كيف يمكنني مساعدتك؟
+      </div>
+    `;
+
+  document
+    .getElementById("messageInput")
+    .value = "";
+
+  closePanels();
+
+  if(window.innerWidth <= 700){
+
+    document
+      .getElementById("sidebar")
+      .classList.remove("open");
+
+  }
+
+}
+
+
+/* ================= MESSAGE ================= */
+
+function handleKey(event){
+
+  if(
+    event.key === "Enter" &&
+    !event.shiftKey
+  ){
+
+    event.preventDefault();
+
+    sendMessage();
+
+  }
+
+}
+
+
+function sendMessage(){
+
+  const input =
+    document.getElementById(
+      "messageInput"
+    );
+
+  const text =
+    input.value.trim();
+
+  if(!text) return;
+
+  const empty =
+    document.getElementById(
+      "emptyMessage"
+    );
+
+  if(empty){
+    empty.remove();
+  }
+
+  addMessage(
+    "user",
+    text
+  );
+
+  input.value = "";
+
+  input.style.height = "auto";
+
+  setTimeout(
+    function(){
+
+      addMessage(
+        "assistant",
+        "تم استلام رسالتك. هذه نسخة واجهة التطبيق، ويمكن ربطها الآن بخدمة الذكاء الاصطناعي الفعلية."
+      );
+
+    },
+    500
+  );
+
+}
+
+
+function addMessage(
+  type,
+  text
+){
+
+  const container =
+    document.getElementById(
+      "chatInner"
+    );
+
+  const message =
+    document.createElement(
+      "div"
+    );
+
+  message.className =
+    "message " + type;
+
+  const avatar =
+    type === "user"
+      ? "أنت"
+      : "AI";
+
+  message.innerHTML = `
+
+    <div class="avatar">
+      ${avatar}
+    </div>
+
+    <div class="text">
+
+      ${escapeHTML(text)}
+
+      <div class="message-actions">
+
+        <button
+          onclick="copyText(this)">
+          نسخ
+        </button>
+
+        <button
+          onclick="deleteMessage(this)">
+          حذف
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
+
+  container.appendChild(
+    message
+  );
+
+  const chat =
+    document.getElementById(
+      "chat"
+    );
+
+  chat.scrollTop =
+    chat.scrollHeight;
+
+}
+
+
+function escapeHTML(text){
+
+  return text
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function copyText(button){
+
+  const text =
+    button
+      .closest(".text")
+      .childNodes[0]
+      .textContent
+      .trim();
+
+  if(
+    navigator.clipboard
+  ){
+
+    navigator.clipboard
+      .writeText(text)
+      .then(
+        function(){
+          alert("تم النسخ");
+        }
+      );
+
+  }else{
+
+    alert("تعذر النسخ");
+
+  }
+
+}
+
+
+function deleteMessage(button){
+
+  button
+    .closest(".message")
+    .remove();
+
+}
+
+
+/* ================= FILE ================= */
+
+function fileSelected(event){
+
+  const file =
+    event.target.files[0];
+
+  if(!file) return;
+
+  const input =
+    document.getElementById(
+      "messageInput"
+    );
+
+  input.value =
+    "📎 " + file.name;
+
+  alert(
+    "تم اختيار الملف: " +
+    file.name
+  );
+
+  event.target.value = "";
+
+}
+
+
+/* ================= VOICE ================= */
+
+function startVoice(){
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
+
+    alert(
+      "التعرف على الصوت غير مدعوم في هذا المتصفح."
+    );
+
+    return;
+  }
+
+  const recognition =
+    new SpeechRecognition();
+
+  recognition.lang =
+    "ar-SA";
+
+  recognition.interimResults =
+    false;
+
+  const btn =
+    document.getElementById(
+      "voiceBtn"
+    );
+
+  btn.classList.add(
+    "voice-active"
+  );
+
+  recognition.start();
+
+  recognition.onresult =
+    function(event){
+
+      const result =
+        event.results[0][0]
+          .transcript;
+
+      document
+        .getElementById(
+          "messageInput"
+        )
+        .value = result;
+
+    };
+
+  recognition.onerror =
+    function(){
+
+      alert(
+        "حدث خطأ أثناء استخدام الميكروفون."
+      );
+
+    };
+
+  recognition.onend =
+    function(){
+
+      btn.classList.remove(
+        "voice-active"
+      );
+
+    };
+
+}
+
+
+/* ================= PANELS ================= */
+
+function showPanel(name){
+
+  closePanels();
+
+  const panel =
+    document.getElementById(
+      name + "Panel"
+    );
+
+  if(panel){
+
+    panel.classList.add(
+      "active"
+    );
+
+  }
+
+  if(window.innerWidth <= 700){
+
+    document
+      .getElementById("sidebar")
+      .classList.remove("open");
+
+  }
+
+}
+
+
+function closePanels(){
+
+  document
+    .querySelectorAll(".panel")
+    .forEach(
+      function(panel){
+
+        panel.classList.remove(
+          "active"
+        );
+
+      }
+    );
+
+}
+
+
+/* ================= IMAGE DEMO ================= */
+
+function createImageDemo(){
+
+  const prompt =
+    document
+      .getElementById(
+        "imagePrompt"
+      )
+      .value
+      .trim();
+
+  if(!prompt){
+
+    alert(
+      "اكتب وصف الصورة أولاً"
+    );
+
+    return;
+  }
+
+  document
+    .getElementById(
+      "imageResult"
+    )
+    .innerHTML = `
+
+      <div class="card image-demo">
+
+        <div class="image-box">
+          ✦
+        </div>
+
+        <p>
+          تم تجهيز طلب التصميم:
+          ${escapeHTML(prompt)}
+        </p>
+
+        <small style="color:#888">
+          ربط مولّد الصور الحقيقي يحتاج إلى API.
+        </small>
+
+      </div>
+
+  `;
+
+}
+
+
+/* ================= AUTO RESIZE ================= */
+
+const messageInput =
+  document.getElementById(
+    "messageInput"
+  );
+
+messageInput.addEventListener(
+  "input",
+  function(){
+
+    this.style.height =
+      "auto";
+
+    this.style.height =
+      Math.min(
+        this.scrollHeight,
+        140
+      ) + "px";
+
+  }
+);
+
+</script>
+
+</body>
+  </html>
