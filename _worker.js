@@ -14,18 +14,6 @@ function json(data, status = 200) {
   });
 }
 
-function withCors(response) {
-  const headers = new Headers(response.headers);
-  for (const [key, value] of Object.entries(CORS)) {
-    headers.set(key, value);
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers
-  });
-}
-
 async function chat(request, env) {
   let body;
 
@@ -41,48 +29,42 @@ async function chat(request, env) {
     return json({ reply: "اكتب رسالتك أولًا." }, 400);
   }
 
-  /*
-   * Workers AI
-   * يجب أن يكون AI مربوطًا باسم AI في Cloudflare.
-   */
-  if (env.AI) {
-    try {
-      const result = await env.AI.run(
-        "@cf/zai-org/glm-4.7-flash",
-        {
-          messages: [
-            {
-              role: "system",
-              content:
-                "أنت مساعد ذكاء اصطناعي عربي. أجب بالعربية بوضوح واختصار، ويمكنك استخدام الإنجليزية عند الحاجة. لا تدّعي تنفيذ شيء لم تنفذه."
-            },
-            {
-              role: "user",
-              content: message
-            }
-          ]
-        }
-      );
+  if (!env.AI) {
+    return json({
+      reply: "التطبيق يعمل، لكن Workers AI غير مربوط بعد في Cloudflare."
+    }, 500);
+  }
 
-      const reply =
+  try {
+    const result = await env.AI.run(
+      "@cf/zai-org/glm-4.7-flash",
+      {
+        messages: [
+          {
+            role: "system",
+            content:
+              "أنت مساعد ذكاء اصطناعي عربي. أجب بالعربية بوضوح ومساعدة، ويمكنك استخدام الإنجليزية عند الحاجة."
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ]
+      }
+    );
+
+    return json({
+      reply:
         result?.response ||
         result?.text ||
         result?.result?.response ||
-        "لم تصل إجابة من نموذج الذكاء الاصطناعي.";
-
-      return json({ reply });
-    } catch (error) {
-      return json({
-        reply:
-          "حدث خطأ أثناء تشغيل الذكاء الاصطناعي. تأكد من تفعيل Workers AI وربط AI بالـ Worker."
-      }, 500);
-    }
+        "لم تصل إجابة من الذكاء الاصطناعي."
+    });
+  } catch (error) {
+    return json({
+      reply: "حدث خطأ أثناء تشغيل الذكاء الاصطناعي."
+    }, 500);
   }
-
-  return json({
-    reply:
-      "التطبيق يعمل، لكن Workers AI غير مربوط بعد. فعّل ربط AI في إعدادات Cloudflare ثم أعد النشر."
-  });
 }
 
 async function generateImage(request, env) {
@@ -149,9 +131,7 @@ async function api(request, env) {
 
   if (url.pathname === "/api/chat") {
     if (request.method !== "POST") {
-      return json({
-        error: "استخدم POST."
-      }, 405);
+      return json({ error: "استخدم POST." }, 405);
     }
 
     return chat(request, env);
@@ -159,9 +139,7 @@ async function api(request, env) {
 
   if (url.pathname === "/api/image") {
     if (request.method !== "POST") {
-      return json({
-        error: "استخدم POST."
-      }, 405);
+      return json({ error: "استخدم POST." }, 405);
     }
 
     return generateImage(request, env);
@@ -170,8 +148,9 @@ async function api(request, env) {
   if (url.pathname === "/api/health") {
     return json({
       ok: true,
-      app: "AI",
+      app: "my-ai-ap",
       ai: Boolean(env.AI),
+      assets: Boolean(env.ASSETS),
       time: new Date().toISOString()
     });
   }
@@ -180,13 +159,9 @@ async function api(request, env) {
 }
 
 export default {
-  async fetch(request, env, ctx) {
-
+  async fetch(request, env) {
     const url = new URL(request.url);
 
-    /*
-     * API
-     */
     if (url.pathname.startsWith("/api/")) {
       const response = await api(request, env);
 
@@ -199,21 +174,12 @@ export default {
       }, 404);
     }
 
-    /*
-     * الملفات الثابتة
-     *
-     * ASSETS يجب أن يكون مربوطًا من إعدادات Cloudflare.
-     */
     if (env.ASSETS) {
       return env.ASSETS.fetch(request);
     }
 
-    /*
-     * منع الخطأ القديم:
-     * Cannot read properties of undefined (reading 'fetch')
-     */
     return new Response(
-      "ملفات التطبيق غير مربوطة بـ ASSETS. أضف إعداد assets في Cloudflare ثم أعد النشر.",
+      "خطأ: ملفات التطبيق غير مربوطة بـ ASSETS.",
       {
         status: 503,
         headers: {
