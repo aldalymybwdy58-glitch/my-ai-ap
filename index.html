@@ -1194,3 +1194,1332 @@ function clearChats(){
 
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>تطبيق الذكاء الاصطناعي</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  font-family:Arial,sans-serif;
+  background:#fff;
+  color:#171717;
+}
+
+body{overflow:hidden}
+
+.app{
+  width:100%;
+  height:100vh;
+  display:flex;
+}
+
+/* هوية التطبيق */
+.app-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 6px 16px;
+}
+
+.app-logo{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  background:#111;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  font-size:15px;
+  flex-shrink:0;
+}
+
+.app-name{
+  font-size:16px;
+  font-weight:600;
+  color:#171717;
+  white-space:nowrap;
+}
+
+/* القائمة */
+.sidebar{
+  width:285px;
+  height:100%;
+  background:#f7f7f8;
+  border-left:1px solid #e5e5e5;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  transition:.25s;
+  z-index:30;
+}
+
+.new-chat{
+  height:48px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  background:#fff;
+  font-size:15px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 15px;
+}
+
+.new-chat:hover,
+.side-item:hover{
+  background:#e9e9e9;
+}
+
+.history{
+  flex:1;
+  overflow:auto;
+  margin-top:15px;
+}
+
+.history-title{
+  color:#777;
+  font-size:13px;
+  padding:10px;
+}
+
+.history-item{
+  padding:10px;
+  border-radius:9px;
+  cursor:pointer;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.side-bottom{
+  border-top:1px solid #ddd;
+  padding-top:8px;
+}
+
+.side-item{
+  border:0;
+  background:transparent;
+  width:100%;
+  padding:12px;
+  border-radius:9px;
+  text-align:right;
+  cursor:pointer;
+  font-size:14px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+/* الرئيسية */
+.main{
+  flex:1;
+  min-width:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar{
+  height:58px;
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  border-bottom:1px solid #eee;
+}
+
+.menu-btn{
+  width:42px;
+  height:42px;
+  border:0;
+  background:transparent;
+  border-radius:9px;
+  font-size:23px;
+  cursor:pointer;
+}
+
+.menu-btn:hover{background:#eee}
+
+.chat{
+  flex:1;
+  overflow:auto;
+  padding:25px 15px 150px;
+}
+
+.chat-inner{
+  width:100%;
+  max-width:820px;
+  margin:auto;
+}
+
+.empty{
+  height:100%;
+  min-height:55vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#555;
+  font-size:16px;
+}
+
+.message{
+  display:flex;
+  gap:12px;
+  margin:24px 0;
+  line-height:1.8;
+  font-size:16px;
+}
+
+.avatar{
+  width:35px;
+  height:35px;
+  min-width:35px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+}
+
+.user .avatar{
+  background:#e5e5e5;
+}
+
+.assistant .avatar{
+  background:#111;
+  color:#fff;
+}
+
+.text{
+  flex:1;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+/* صندوق الكتابة */
+.bottom{
+  position:fixed;
+  left:0;
+  right:285px;
+  bottom:0;
+  padding:30px 15px 18px;
+  background:linear-gradient(transparent,#fff 30%);
+}
+
+.composer{
+  max-width:820px;
+  margin:auto;
+  border:1px solid #d5d5d5;
+  border-radius:25px;
+  background:#fff;
+  box-shadow:0 2px 12px rgba(0,0,0,.07);
+  display:flex;
+  align-items:flex-end;
+  padding:7px;
+}
+
+textarea{
+  flex:1;
+  border:0;
+  outline:0;
+  resize:none;
+  font-family:Arial;
+  font-size:16px;
+  line-height:1.5;
+  padding:10px;
+  min-height:44px;
+  max-height:130px;
+  background:transparent;
+}
+
+.action{
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  cursor:pointer;
+  font-size:20px;
+}
+
+.action:hover{background:#eee}
+
+.send{
+  background:#111;
+  color:#fff;
+}
+
+.send:hover{background:#333}
+
+/* لوحة الإضافة */
+.add-menu{
+  position:fixed;
+  bottom:85px;
+  right:calc(50% - 410px);
+  width:260px;
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:15px;
+  box-shadow:0 8px 30px rgba(0,0,0,.15);
+  padding:8px;
+  display:none;
+  z-index:50;
+}
+
+.add-menu.show{display:block}
+
+.add-item{
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:12px;
+  border-radius:10px;
+  text-align:right;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.add-item:hover{background:#f1f1f1}
+
+/* الصفحات */
+.panel{
+  position:absolute;
+  inset:58px 0 0 0;
+  background:#fff;
+  overflow:auto;
+  display:none;
+  z-index:10;
+}
+
+.panel.active{display:block}
+
+.panel-inner{
+  max-width:850px;
+  margin:auto;
+  padding:35px 20px 120px;
+}
+
+.panel h1{
+  font-size:28px;
+  margin-top:0;
+}
+
+.card{
+  border:1px solid #ddd;
+  border-radius:16px;
+  padding:18px;
+  margin:12px 0;
+  background:#fff;
+}
+
+.card button,
+.primary{
+  border:0;
+  border-radius:10px;
+  padding:11px 16px;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+}
+
+.card button:hover,
+.primary:hover{opacity:.85}
+
+.back{
+  border:0;
+  background:#eee;
+  padding:9px 14px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* الوضع الداكن */
+body.dark{
+  background:#212121;
+  color:#eee;
+}
+
+body.dark .sidebar{
+  background:#171717;
+  border-color:#333;
+}
+
+body.dark .new-chat,
+body.dark .composer,
+body.dark .add-menu,
+body.dark .panel,
+body.dark .card{
+  background:#212121;
+  color:#eee;
+  border-color:#444;
+}
+
+body.dark .topbar{
+  border-color:#333;
+}
+
+body.dark .bottom{
+  background:linear-gradient(transparent,#212121 30%);
+}
+
+body.dark textarea{
+  color:#eee;
+}
+
+body.dark .side-item:hover,
+body.dark .add-item:hover{
+  background:#2f2f2f;
+}
+
+body.dark .action:hover,
+body.dark .menu-btn:hover{
+  background:#333;
+}
+
+body.dark .user .avatar{
+  background:#444;
+  color:#fff;
+}
+
+body.dark .app-name{
+  color:#fff;
+}
+
+/* الهاتف */
+@media(max-width:700px){
+
+  .sidebar{
+    position:fixed;
+    right:0;
+    top:0;
+    transform:translateX(100%);
+    box-shadow:-5px 0 20px rgba(0,0,0,.2);
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .bottom{
+    right:0;
+  }
+
+  .add-menu{
+    right:12px;
+    bottom:85px;
+    width:250px;
+  }
+
+  .chat{
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .message{
+    font-size:15px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+
+<!-- اسم وشعار التطبيق -->
+<div class="app-brand">
+  <div class="app-logo">AI</div>
+  <div class="app-name">تطبيق الذكاء الاصطناعي</div>
+</div>
+
+<button class="new-chat" onclick="newChat()">
+＋ <span>محادثة جديدة</span>
+</button>
+
+<div class="history">
+<div class="history-title">المحادثات</div>
+<div id="historyList"></div>
+</div>
+
+<div class="side-bottom">
+
+<button class="side-item" onclick="openPanel('imagePanel')">
+🖼️ <span>تصميم الصور</span>
+</button>
+
+<button class="side-item" onclick="openPanel('videoPanel')">
+🎬 <span>تصميم الفيديو</span>
+</button>
+
+<button class="side-item" onclick="openPanel('pluginPanel')">
+🧩 <span>المكونات الإضافية</span>
+</button>
+
+<button class="side-item" onclick="openPanel('stickerPanel')">
+🏷️ <span>الملصقات</span>
+</button>
+
+<button class="side-item" onclick="openPanel('subscriptionPanel')">
+⭐ <span>الاشتراك</span>
+</button>
+
+<button class="side-item" onclick="openPanel('settingsPanel')">
+⚙️ <span>الإعدادات</span>
+</button>
+
+<button class="side-item" onclick="openPanel('aboutPanel')">
+ℹ️ <span>حول التطبيق</span>
+</button>
+
+</div>
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+</div>
+
+<section class="chat" id="chat">
+
+<div class="chat-inner" id="messages">
+
+<div class="empty" id="empty">
+ابدأ محادثة جديدة
+</div>
+
+</div>
+</section>
+
+</main>
+
+<div class="bottom">
+
+<div class="composer">
+
+<button class="action" onclick="toggleAddMenu()" title="إضافة">
+＋
+</button>
+
+<textarea
+id="input"
+placeholder="اكتب رسالتك..."
+rows="1"
+oninput="resizeInput(this)"
+onkeydown="handleKey(event)"
+></textarea>
+
+<button class="action" onclick="startVoice()" title="التحدث">
+🎙️
+</button>
+
+<button class="action send" onclick="sendMessage()" title="إرسال">
+↑
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- قائمة الإضافة -->
+
+<div class="add-menu" id="addMenu">
+
+<button class="add-item" onclick="openCamera()">
+📷 الكاميرا
+</button>
+
+<button class="add-item" onclick="chooseImages()">
+🖼️ الصور
+</button>
+
+<button class="add-item" onclick="chooseFiles()">
+📁 الملفات
+</button>
+
+<button class="add-item" onclick="openPanel('stickerPanel')">
+🏷️ الملصقات
+</button>
+
+<button class="add-item" onclick="openPanel('imagePanel')">
+🎨 تصميم صورة
+</button>
+
+<button class="add-item" onclick="openPanel('videoPanel')">
+🎬 إنشاء فيديو
+</button>
+
+</div>
+
+<!-- تصميم الصور -->
+
+<section class="panel" id="imagePanel">
+
+<div class="panel-inner">
+
+<button class="back" onclick="closePanels()">← رجوع</button>
+
+<h1>🖼️ تصميم الصور</h1>
+
+<div class="card">
+
+<h3>تصميم صورة بالذكاء الاصطناعي</h3>
+
+<p>اكتب وصف الصورة التي تريد تصميمها.</p>
+
+<textarea
+id="imagePrompt"
+style="width:100%;height:120px;border:1px solid #ddd;border-radius:10px;padding:12px"
+placeholder="مثال: مدينة عربية جميلة وقت الغروب..."
+></textarea>
+
+<br><br>
+
+<button class="primary" onclick="createImage()">
+🎨 إنشاء الصورة
+</button>
+
+</div>
+
+<div class="card">
+
+<strong>🆓 مجاني</strong>
+
+<p>
+واجهة تصميم الصور جاهزة للربط بمولد الصور.
+</p>
+
+</div>
+
+</div>
+</section>
+
+<!-- الفيديو -->
+
+<section class="panel" id="videoPanel">
+
+<div class="panel-inner">
+
+<button class="back" onclick="closePanels()">← رجوع</button>
+
+<h1>🎬 تصميم الفيديو</h1>
+
+<div class="card">
+
+<h3>إنشاء فيديو بالذكاء الاصطناعي</h3>
+
+<p>اكتب وصف الفيديو الذي تريد إنشاءه.</p>
+
+<textarea
+id="videoPrompt"
+style="width:100%;height:120px;border:1px solid #ddd;border-radius:10px;padding:12px"
+placeholder="مثال: خمسة أشخاص يساعدون بعضهم في قصة كرتونية..."
+></textarea>
+
+<br><br>
+
+<button class="primary" onclick="createVideo()">
+🎬 إنشاء الفيديو
+</button>
+
+</div>
+
+<div class="card">
+
+<strong>🆓 مجاني</strong>
+
+<p>
+واجهة إنشاء الفيديو جاهزة للربط بخدمة توليد الفيديو.
+</p>
+
+</div>
+
+</div>
+</section>
+
+<!-- المكونات -->
+
+<section class="panel" id="pluginPanel">
+
+<div class="panel-inner">
+
+<button class="back" onclick="closePanels()">← رجوع</button>
+
+<h1>🧩 المكونات الإضافية</h1>
+
+<div class="card">
+
+<h3>🧮 حاسبة</h3>
+
+<p>أداة حساب سريعة.</p>
+
+<button onclick="alert('الحاسبة ستضاف هنا')">
+فتح
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>🌐 ترجمة</h3>
+
+<p>ترجمة النصوص بين اللغات.</p>
+
+<button onclick="alert('أداة الترجمة ستضاف هنا')">
+فتح
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>📝 كتابة</h3>
+
+<p>إنشاء وتحرير النصوص.</p>
+
+<button onclick="alert('أداة الكتابة ستضاف هنا')">
+فتح
+</button>
+
+</div>
+
+</div>
+</section>
+
+<!-- الملصقات -->
+
+<section class="panel" id="stickerPanel">
+
+<div class="panel-inner">
+
+<button class="back" onclick="closePanels()">← رجوع</button>
+
+<h1>🏷️ الملصقات</h1>
+
+<div
+class="card"
+style="font-size:35px;display:flex;gap:15px;flex-wrap:wrap"
+>
+
+<span onclick="useSticker('😀')">😀</span>
+<span onclick="useSticker('😂')">😂</span>
+<span onclick="useSticker('❤️')">❤️</span>
+<span onclick="useSticker('👍')">👍</span>
+<span onclick="useSticker('🔥')">🔥</span>
+<span onclick="useSticker('🎉')">🎉</span>
+<span onclick="useSticker('⭐')">⭐</span>
+<span onclick="useSticker('🤖')">🤖</span>
+
+</div>
+
+</div>
+</section>
+
+<!-- الاشتراك -->
+
+<section class="panel" id="subscriptionPanel">
+
+<div class="panel-inner">
+
+<button class="back" onclick="closePanels()">← رجوع</button>
+
+<h1>⭐ الاشتراك</h1>
+
+<div class="card">
+
+<h2>🆓 الخطة المجانية</h2>
+
+<p>💬 المحادثة</p>
+<p>🖼️ تصميم الصور</p>
+<p>🎨 التصاميم</p>
+<p>📷 الكاميرا</p>
+<p>📁 الملفات</p>
+<p>🏷️ الملصقات</p>
+<p>🎙️ التحدث</p>
+<p>🎬 الفيديو</p>
+
+<button onclick="alert('أنت تستخدم الخطة المجانية')">
+الخطة الحالية
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>⭐ Pro</h2>
+
+<p>مزايا إضافية مستقبلية.</p>
+<p>جودة أعلى وحدود استخدام أكبر.</p>
+
+<button onclick="alert('سيتم إضافة نظام الاشتراك لاحقًا')">
+الاشتراك
+</button>
+
+</div>
+
+</div>
+</section>
+
+<!-- الإعدادات -->
+
+<section class="panel" id="settingsPanel">
+
+<div class="panel-inner">
+
+<button class="back" onclick="closePanels()">← رجوع</button>
+
+<h1>⚙️ الإعدادات</h1>
+
+<div class="card">
+
+<h3>🌙 المظهر</h3>
+
+<button onclick="toggleDarkMode()">
+تغيير الوضع الداكن / الفاتح
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>🌐 اللغة</h3>
+
+<button onclick="alert('العربية مفعلة حاليًا')">
+العربية
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>🗑️ المحادثات</h3>
+
+<button onclick="clearChats()">
+مسح المحادثات
+</button>
+
+</div>
+
+</div>
+</section>
+
+<!-- حول -->
+
+<section class="panel" id="aboutPanel">
+
+<div class="panel-inner">
+
+<button class="back" onclick="closePanels()">← رجوع</button>
+
+<h1>ℹ️ حول التطبيق</h1>
+
+<div class="card">
+
+<h3>تطبيق الذكاء الاصطناعي</h3>
+
+<p>
+تطبيق ذكاء اصطناعي للمحادثة والتصميم.
+</p>
+
+<p>
+💬 محادثة — 🖼️ صور — 🎬 فيديو — 🎨 تصميم — 🎙️ صوت
+</p>
+
+<p>
+الإصدار 1.0
+</p>
+
+</div>
+
+</div>
+</section>
+
+<!-- الملفات -->
+
+<input
+type="file"
+id="imageInput"
+accept="image/*"
+multiple
+style="display:none"
+onchange="imagesSelected(this)"
+>
+
+<input
+type="file"
+id="fileInput"
+multiple
+style="display:none"
+onchange="filesSelected(this)"
+>
+
+<input
+type="file"
+id="cameraInput"
+accept="image/*"
+capture="environment"
+style="display:none"
+onchange="cameraSelected(this)"
+>
+
+<script>
+
+let currentMessages=[];
+
+/* القائمة */
+
+function toggleSidebar(){
+
+  document
+    .getElementById("sidebar")
+    .classList.toggle("open");
+
+}
+
+/* محادثة جديدة */
+
+function newChat(){
+
+  currentMessages=[];
+
+  document.getElementById("messages").innerHTML=
+    '<div class="empty" id="empty">ابدأ محادثة جديدة</div>';
+
+  document.getElementById("input").value="";
+
+  document
+    .getElementById("sidebar")
+    .classList.remove("open");
+
+}
+
+/* الإضافة */
+
+function toggleAddMenu(){
+
+  document
+    .getElementById("addMenu")
+    .classList.toggle("show");
+
+}
+
+/* الرسائل */
+
+function addMessage(text,type){
+
+  const empty=document.getElementById("empty");
+
+  if(empty) empty.remove();
+
+  const message=document.createElement("div");
+
+  message.className="message "+type;
+
+  const avatar=document.createElement("div");
+
+  avatar.className="avatar";
+
+  avatar.textContent=
+    type==="user" ? "أنت" : "AI";
+
+  const content=document.createElement("div");
+
+  content.className="text";
+
+  content.textContent=text;
+
+  message.appendChild(avatar);
+
+  message.appendChild(content);
+
+  document
+    .getElementById("messages")
+    .appendChild(message);
+
+  const chat=document.getElementById("chat");
+
+  chat.scrollTop=chat.scrollHeight;
+
+}
+
+/* إرسال */
+
+async function sendMessage(){
+
+  const input=document.getElementById("input");
+
+  const text=input.value.trim();
+
+  if(!text) return;
+
+  addMessage(text,"user");
+
+  currentMessages.push({
+    role:"user",
+    content:text
+  });
+
+  input.value="";
+
+  input.style.height="44px";
+
+  addMessage(
+    "جاري التفكير...",
+    "assistant"
+  );
+
+  const messages=
+    document.getElementById("messages");
+
+  const thinking=
+    messages.lastElementChild;
+
+  try{
+
+    const response=await fetch(
+      "/api/chat",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+          message:text
+        })
+      }
+    );
+
+    const data=await response.json();
+
+    thinking
+      .querySelector(".text")
+      .textContent=
+      data.reply || "لم تصل إجابة.";
+
+  }catch(error){
+
+    thinking
+      .querySelector(".text")
+      .textContent=
+      "تعذر الاتصال بالذكاء الاصطناعي حاليًا.";
+
+  }
+
+}
+
+/* Enter */
+
+function handleKey(event){
+
+  if(
+    event.key==="Enter" &&
+    !event.shiftKey
+  ){
+
+    event.preventDefault();
+
+    sendMessage();
+
+  }
+
+}
+
+/* حجم الكتابة */
+
+function resizeInput(el){
+
+  el.style.height="auto";
+
+  el.style.height=
+    Math.min(el.scrollHeight,130)+"px";
+
+}
+
+/* الصوت */
+
+function startVoice(){
+
+  const SpeechRecognition=
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
+
+    alert(
+      "التعرف على الصوت غير مدعوم في هذا المتصفح."
+    );
+
+    return;
+
+  }
+
+  const recognition=
+    new SpeechRecognition();
+
+  recognition.lang="ar-SA";
+
+  recognition.interimResults=false;
+
+  recognition.onresult=function(event){
+
+    document.getElementById("input").value=
+      event.results[0][0].transcript;
+
+  };
+
+  recognition.start();
+
+}
+
+/* الصور */
+
+function chooseImages(){
+
+  document
+    .getElementById("addMenu")
+    .classList.remove("show");
+
+  document
+    .getElementById("imageInput")
+    .click();
+
+}
+
+function imagesSelected(input){
+
+  if(!input.files.length) return;
+
+  for(const file of input.files){
+
+    addMessage(
+      "🖼️ تم اختيار الصورة: "+file.name,
+      "user"
+    );
+
+  }
+
+  input.value="";
+
+}
+
+/* الملفات */
+
+function chooseFiles(){
+
+  document
+    .getElementById("addMenu")
+    .classList.remove("show");
+
+  document
+    .getElementById("fileInput")
+    .click();
+
+}
+
+function filesSelected(input){
+
+  if(!input.files.length) return;
+
+  for(const file of input.files){
+
+    addMessage(
+      "📁 تم إرفاق الملف: "+file.name,
+      "user"
+    );
+
+  }
+
+  input.value="";
+
+}
+
+/* الكاميرا */
+
+function openCamera(){
+
+  document
+    .getElementById("addMenu")
+    .classList.remove("show");
+
+  document
+    .getElementById("cameraInput")
+    .click();
+
+}
+
+function cameraSelected(input){
+
+  if(!input.files.length) return;
+
+  addMessage(
+    "📷 تم التقاط صورة بالكاميرا: "+
+    input.files[0].name,
+    "user"
+  );
+
+  input.value="";
+
+}
+
+/* اللوحات */
+
+function openPanel(id){
+
+  document
+    .getElementById("addMenu")
+    .classList.remove("show");
+
+  document
+    .querySelectorAll(".panel")
+    .forEach(
+      panel=>panel.classList.remove("active")
+    );
+
+  document
+    .getElementById(id)
+    .classList.add("active");
+
+  document
+    .getElementById("sidebar")
+    .classList.remove("open");
+
+}
+
+function closePanels(){
+
+  document
+    .querySelectorAll(".panel")
+    .forEach(
+      panel=>panel.classList.remove("active")
+    );
+
+}
+
+/* الصور */
+
+function createImage(){
+
+  const prompt=
+    document
+      .getElementById("imagePrompt")
+      .value
+      .trim();
+
+  if(!prompt){
+
+    alert(
+      "اكتب وصف الصورة أولًا."
+    );
+
+    return;
+
+  }
+
+  alert(
+    "تم تجهيز طلب تصميم الصورة.\n\n"+
+    "سيتم ربط مولد الصور الفعلي بالـ API."
+  );
+
+}
+
+/* الفيديو */
+
+function createVideo(){
+
+  const prompt=
+    document
+      .getElementById("videoPrompt")
+      .value
+      .trim();
+
+  if(!prompt){
+
+    alert(
+      "اكتب وصف الفيديو أولًا."
+    );
+
+    return;
+
+  }
+
+  alert(
+    "تم تجهيز طلب إنشاء الفيديو.\n\n"+
+    "سيتم ربط مولد الفيديو الفعلي بالـ API."
+  );
+
+}
+
+/* الملصقات */
+
+function useSticker(sticker){
+
+  closePanels();
+
+  const input=
+    document.getElementById("input");
+
+  input.value+=sticker;
+
+  input.focus();
+
+}
+
+/* الوضع الداكن */
+
+function toggleDarkMode(){
+
+  document.body.classList.toggle("dark");
+
+  localStorage.setItem(
+    "darkMode",
+    document.body.classList.contains("dark")
+  );
+
+}
+
+/* حفظ الوضع */
+
+if(
+  localStorage.getItem("darkMode")==="true"
+){
+
+  document.body.classList.add("dark");
+
+}
+
+/* مسح المحادثات */
+
+function clearChats(){
+
+  if(
+    !confirm(
+      "هل تريد مسح المحادثة الحالية؟"
+    )
+  ) return;
+
+  newChat();
+
+}
+
+</script>
+
+</body>
+</html>
