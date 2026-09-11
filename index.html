@@ -1,191 +1,486 @@
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization"
-};
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#212121">
+<title>ChatGPT AI</title>
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=UTF-8",
-      ...CORS
-    }
-  });
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  font-family:Arial,"Noto Sans Arabic",sans-serif;
+  background:#212121;
+  color:#fff
 }
 
-async function chat(request, env) {
-  let body;
+button,textarea,input{font:inherit}
+button{cursor:pointer}
+body{overflow:hidden}
 
-  try {
-    body = await request.json();
-  } catch {
-    return json({ reply: "الطلب غير صحيح." }, 400);
-  }
-
-  const message = String(body?.message || "").trim();
-
-  if (!message) {
-    return json({ reply: "اكتب رسالتك أولًا." }, 400);
-  }
-
-  if (!env.AI) {
-    return json({
-      reply: "التطبيق يعمل، لكن Workers AI غير مربوط بعد في Cloudflare."
-    }, 500);
-  }
-
-  try {
-    const result = await env.AI.run(
-      "@cf/zai-org/glm-4.7-flash",
-      {
-        messages: [
-          {
-            role: "system",
-            content:
-              "أنت مساعد ذكاء اصطناعي عربي. أجب بالعربية بوضوح ومساعدة، ويمكنك استخدام الإنجليزية عند الحاجة."
-          },
-          {
-            role: "user",
-            content: message
-          }
-        ]
-      }
-    );
-
-    return json({
-      reply:
-        result?.response ||
-        result?.text ||
-        result?.result?.response ||
-        "لم تصل إجابة من الذكاء الاصطناعي."
-    });
-  } catch (error) {
-    return json({
-      reply: "حدث خطأ أثناء تشغيل الذكاء الاصطناعي."
-    }, 500);
-  }
+.app{
+  height:100vh;
+  display:flex;
+  background:#212121
 }
 
-async function generateImage(request, env) {
-  if (!env.AI) {
-    return json({
-      error: "Workers AI غير مربوط."
-    }, 500);
-  }
-
-  let body;
-
-  try {
-    body = await request.json();
-  } catch {
-    return json({
-      error: "الطلب غير صحيح."
-    }, 400);
-  }
-
-  const prompt = String(body?.prompt || "").trim();
-
-  if (!prompt) {
-    return json({
-      error: "اكتب وصف الصورة."
-    }, 400);
-  }
-
-  try {
-    const result = await env.AI.run(
-      "@cf/black-forest-labs/flux-1-schnell",
-      {
-        prompt,
-        steps: 4,
-        seed: Math.floor(Math.random() * 1000000000)
-      }
-    );
-
-    if (!result?.image) {
-      return json({
-        error: "لم يتم إنشاء الصورة."
-      }, 500);
-    }
-
-    return json({
-      success: true,
-      image: `data:image/jpeg;base64,${result.image}`
-    });
-  } catch (error) {
-    return json({
-      error: "تعذر إنشاء الصورة حاليًا."
-    }, 500);
-  }
+/* SIDEBAR */
+.sidebar{
+  width:290px;
+  height:100%;
+  background:#171717;
+  display:flex;
+  flex-direction:column;
+  padding:10px;
+  transition:.25s;
+  z-index:100;
+  border-left:1px solid #303030
 }
 
-async function api(request, env) {
-  const url = new URL(request.url);
-
-  if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: CORS
-    });
-  }
-
-  if (url.pathname === "/api/chat") {
-    if (request.method !== "POST") {
-      return json({ error: "استخدم POST." }, 405);
-    }
-
-    return chat(request, env);
-  }
-
-  if (url.pathname === "/api/image") {
-    if (request.method !== "POST") {
-      return json({ error: "استخدم POST." }, 405);
-    }
-
-    return generateImage(request, env);
-  }
-
-  if (url.pathname === "/api/health") {
-    return json({
-      ok: true,
-      app: "my-ai-ap",
-      ai: Boolean(env.AI),
-      assets: Boolean(env.ASSETS),
-      time: new Date().toISOString()
-    });
-  }
-
-  return null;
+.sidebar-head{
+  display:flex;
+  gap:7px;
+  align-items:center;
+  margin-bottom:10px
 }
 
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
+.icon-btn{
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:#eee;
+  font-size:20px
+}
 
-    if (url.pathname.startsWith("/api/")) {
-      const response = await api(request, env);
+.icon-btn:hover,.side-row:hover{
+  background:#2b2b2b
+}
 
-      if (response) {
-        return response;
-      }
+.brand{
+  font-weight:700;
+  font-size:16px;
+  flex:1;
+  padding-right:5px
+}
 
-      return json({
-        error: "API غير موجود."
-      }, 404);
-    }
+.new-chat{
+  width:100%;
+  height:46px;
+  border:1px solid #3b3b3b;
+  border-radius:12px;
+  background:#212121;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 13px
+}
 
-    if (env.ASSETS) {
-      return env.ASSETS.fetch(request);
-    }
+.new-chat:hover{background:#2b2b2b}
 
-    return new Response(
-      "خطأ: ملفات التطبيق غير مربوطة بـ ASSETS.",
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "text/plain; charset=UTF-8"
-        }
-      }
-    );
-  }
-};
+.sidebar-scroll{
+  flex:1;
+  overflow:auto;
+  padding-top:12px
+}
+
+.side-section-title{
+  font-size:12px;
+  color:#999;
+  padding:12px 10px 6px
+}
+
+.side-row{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#eee;
+  padding:10px;
+  border-radius:10px;
+  text-align:right;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  font-size:14px
+}
+
+.side-row .ico{
+  width:23px;
+  text-align:center;
+  font-size:17px
+}
+
+.history-item{
+  padding:9px 10px;
+  border-radius:9px;
+  color:#ddd;
+  font-size:13px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis
+}
+
+.history-item:hover{background:#292929}
+
+.sidebar-bottom{
+  border-top:1px solid #303030;
+  padding-top:7px
+}
+
+.profile{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px;
+  border-radius:10px
+}
+
+.profile:hover{background:#292929}
+
+.avatar-user{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:#176b42;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:bold
+}
+
+.profile-text{
+  font-size:13px;
+  flex:1
+}
+
+.plan{
+  font-size:11px;
+  color:#999
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  min-width:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  position:relative
+}
+
+.topbar{
+  height:58px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:0 12px;
+  position:relative;
+  z-index:10
+}
+
+.top-title{
+  font-weight:600;
+  font-size:15px;
+  flex:1;
+  text-align:center
+}
+
+.top-actions{
+  display:flex;
+  gap:3px
+}
+
+.chat{
+  flex:1;
+  overflow:auto;
+  padding:15px 14px 145px
+}
+
+.chat-inner{
+  max-width:850px;
+  margin:auto
+}
+
+.empty{
+  min-height:58vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#ddd;
+  font-size:20px;
+  text-align:center
+}
+
+.message{
+  display:flex;
+  gap:12px;
+  margin:24px 0;
+  line-height:1.8;
+  font-size:15px
+}
+
+.message .avatar{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px
+}
+
+.user .avatar{background:#4b4b4b}
+.assistant .avatar{background:#fff;color:#111}
+
+.text{
+  flex:1;
+  white-space:pre-wrap;
+  word-break:break-word
+}
+
+.text img{
+  max-width:100%;
+  border-radius:16px;
+  display:block;
+  margin-top:10px
+}
+
+.message-actions{
+  display:flex;
+  gap:2px;
+  margin-top:5px;
+  direction:rtl
+}
+
+.message-actions button{
+  background:transparent;
+  color:#999;
+  border:0;
+  border-radius:7px;
+  padding:5px 7px
+}
+
+.message-actions button:hover{
+  background:#303030;
+  color:#fff
+}
+
+/* COMPOSER */
+.bottom{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:28px 14px 16px;
+  background:linear-gradient(transparent,#212121 32%);
+  z-index:20
+}
+
+.composer-wrap{
+  max-width:850px;
+  margin:auto
+}
+
+.composer{
+  border:1px solid #454545;
+  border-radius:25px;
+  background:#2f2f2f;
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+  padding:7px;
+  display:flex;
+  align-items:flex-end;
+  gap:3px
+}
+
+textarea{
+  flex:1;
+  border:0;
+  outline:0;
+  resize:none;
+  color:#fff;
+  background:transparent;
+  padding:9px 8px;
+  min-height:43px;
+  max-height:140px;
+  line-height:1.5
+}
+
+textarea::placeholder{color:#aaa}
+
+.action{
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  color:#ddd;
+  font-size:20px
+}
+
+.action:hover{background:#454545}
+
+.send{
+  background:#fff;
+  color:#111
+}
+
+.send:hover{background:#ddd}
+
+.voice-active{
+  background:#1d8f61!important;
+  color:#fff!important
+}
+
+.composer-tools{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 3px 0
+}
+
+.tool-hint{
+  font-size:11px;
+  color:#777
+}
+
+/* POPUPS */
+.popup{
+  position:fixed;
+  background:#2b2b2b;
+  border:1px solid #454545;
+  border-radius:15px;
+  box-shadow:0 12px 35px rgba(0,0,0,.4);
+  padding:7px;
+  display:none;
+  z-index:200
+}
+
+.popup.show{display:block}
+
+.add-menu{
+  bottom:92px;
+  right:calc(50% - 425px);
+  width:270px
+}
+
+.menu-item{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#fff;
+  padding:11px;
+  border-radius:10px;
+  text-align:right;
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+
+.menu-item:hover{background:#3a3a3a}
+
+.more-menu{
+  top:55px;
+  right:12px;
+  width:235px
+}
+
+.menu-danger{color:#ff6b6b}
+
+/* PANELS */
+.panel{
+  position:absolute;
+  inset:58px 0 0;
+  background:#212121;
+  overflow:auto;
+  display:none;
+  z-index:50
+}
+
+.panel.active{display:block}
+
+.panel-inner{
+  max-width:900px;
+  margin:auto;
+  padding:25px 18px 100px
+}
+
+.back{
+  border:0;
+  background:#303030;
+  color:#fff;
+  padding:9px 14px;
+  border-radius:10px
+}
+
+.panel h1{
+  font-size:27px;
+  margin:25px 0 18px
+}
+
+.card{
+  border:1px solid #3d3d3d;
+  border-radius:16px;
+  padding:18px;
+  margin:12px 0;
+  background:#292929
+}
+
+.card textarea{
+  width:100%;
+  height:120px;
+  border:1px solid #484848;
+  border-radius:12px;
+  background:#212121
+}
+
+.primary{
+  border:0;
+  border-radius:10px;
+  padding:11px 16px;
+  background:#fff;
+  color:#111
+}
+
+.primary:disabled{
+  opacity:.5;
+  cursor:not-allowed
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px
+}
+
+.feature{min-height:120px}
+.feature h3{margin-top:0}
+
+.badge{
+  display:inline-block;
+  background:#3a3a3a;
+  border-radius:20px;
+  padding:5px 9px;
+  font-size:11px;
+  color:#bbb
+}
+
+.preview{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px
+}
+
+.preview img{
+  width:110px;
+  height:110px;
+  object-fit:cover;
+  border-radius
